@@ -70,6 +70,8 @@ data class StoryTurn(
     val choices: List<String> = emptyList(),
     val xpGained: Int = 0,
     val events: List<String> = emptyList(),
+    /** Visual description of the scene, used to generate the background art. */
+    val imagePrompt: String? = null,
 )
 
 @Serializable

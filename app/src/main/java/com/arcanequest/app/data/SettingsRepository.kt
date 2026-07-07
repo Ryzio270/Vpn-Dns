@@ -68,4 +68,11 @@ class SettingsRepository(context: Context) {
             .putString("model", settings.model.trim())
             .apply()
     }
+
+    /** AI-generated scene artwork behind the story text (Pollinations image API, free). */
+    fun sceneArtEnabled(): Boolean = prefs.getBoolean("sceneArt", true)
+
+    fun setSceneArtEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean("sceneArt", enabled).apply()
+    }
 }

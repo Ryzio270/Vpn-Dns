@@ -172,6 +172,13 @@ fun GameScreen(
 
 /* ------------------------------- STORY TAB ------------------------------- */
 
+/** Deterministic Pollinations image URL for a scene (free, keyless). */
+private fun sceneImageUrl(prompt: String, seed: Int): String {
+    val styled = "$prompt, digital fantasy illustration, atmospheric lighting, highly detailed, no text"
+    return "https://image.pollinations.ai/prompt/" + android.net.Uri.encode(styled) +
+        "?width=768&height=1344&nologo=true&seed=$seed"
+}
+
 @Composable
 private fun StoryTab(
     save: CampaignSave,
@@ -183,6 +190,10 @@ private fun StoryTab(
 ) {
     val listState: LazyListState = rememberLazyListState()
     var customAction by remember { mutableStateOf("") }
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val sceneArtEnabled = remember {
+        com.arcanequest.app.data.SettingsRepository(context).sceneArtEnabled()
+    }
 
     // Typewriter state for the newest turn.
     val lastIndex = save.turns.lastIndex
@@ -205,7 +216,37 @@ private fun StoryTab(
         if (total > 0) listState.scrollToItem(total - 1)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // AI-generated scene art behind the story, with a scrim for readability.
+        val latestTurn = save.turns.lastOrNull()
+        if (sceneArtEnabled && latestTurn != null) {
+            val prompt = latestTurn.imagePrompt
+                ?: latestTurn.narration.replace('\n', ' ').take(160)
+            coil.compose.AsyncImage(
+                model = coil.request.ImageRequest.Builder(context)
+                    .data(sceneImageUrl(prompt, seed = save.turns.size))
+                    .crossfade(900)
+                    .build(),
+                contentDescription = null,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.55f),
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.80f),
+                                MaterialTheme.colorScheme.background.copy(alpha = 0.94f),
+                            )
+                        )
+                    ),
+            )
+        }
+
+        Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             state = listState,
             modifier = Modifier
@@ -314,6 +355,7 @@ private fun StoryTab(
                     )
                 }
             }
+        }
         }
     }
 }

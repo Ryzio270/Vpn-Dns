@@ -9,6 +9,7 @@ object Prompts {
 Respond ONLY with a single JSON object, no markdown fences, no text outside the JSON. Schema:
 {
   "narration": "The next scene, written in vivid second person ('you'). 120-250 words. ALWAYS end the narration trailing off with an ellipsis ...",
+  "scene_image_prompt": "torchlit stone harbor at dusk, rain-slick docks, hooded figures unloading a black-sailed ship, brooding storm clouds",
   "dice_rolls": [
     {"label": "Investigation check", "die": "d20", "roll": 13, "modifier": 3, "total": 16, "outcome": "success"}
   ],
@@ -27,6 +28,7 @@ Respond ONLY with a single JSON object, no markdown fences, no text outside the 
 
 Rules for the JSON fields:
 - "narration": always required. End it mid-tension with "..." so the player chooses what happens next.
+- "scene_image_prompt": REQUIRED every turn. A 15-30 word purely VISUAL description of the current scene for an illustrator: location, time of day, lighting, weather, mood, key figures and objects. Describe what a camera would see. No proper names, no story exposition.
 - "dice_rolls": include ONLY when an action's outcome is uncertain (attacks, saving throws, investigation, persuasion, stealth, lockpicking...). Simulate fair rolls: pick the roll uniformly at random for the die size, never always high. Let bad rolls genuinely fail and shape the story. "outcome" is one of: "critical success", "success", "failure", "critical failure". Empty list when nothing was rolled.
 - "choices": EXACTLY 3 distinct, concrete actions the player could take next, each under 12 words. Make them meaningfully different (bold / clever / cautious).
 - "inventory_add": loot, purchases and rewards. INVENT the item stats yourself to fit the story and world; weapons get a "damage" dice expression, armor gets "armor_bonus" 1-8. Rarity is one of: common, uncommon, rare, epic, legendary. Empty list most turns — loot should feel earned.

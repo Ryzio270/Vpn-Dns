@@ -49,6 +49,7 @@ data class AiStatChanges(
 @Serializable
 data class AiTurn(
     val narration: String = "",
+    val scene_image_prompt: String = "",
     val dice_rolls: List<AiRoll> = emptyList(),
     val choices: List<String> = emptyList(),
     val inventory_add: List<AiItem> = emptyList(),

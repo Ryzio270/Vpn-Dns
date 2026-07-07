@@ -52,6 +52,7 @@ fun SettingsScreen(onBack: () -> Unit) {
     var endpoint by remember { mutableStateOf(initial.endpoint) }
     var apiKey by remember { mutableStateOf(initial.apiKey) }
     var model by remember { mutableStateOf(initial.model) }
+    var sceneArt by remember { mutableStateOf(repo.sceneArtEnabled()) }
 
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -120,6 +121,35 @@ fun SettingsScreen(onBack: () -> Unit) {
                             )
                         }
                     }
+                }
+            }
+
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(Modifier.weight(1f)) {
+                        Text("AI scene artwork", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "Paint each scene as a background behind the story (free, via Pollinations).",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    androidx.compose.material3.Switch(
+                        checked = sceneArt,
+                        onCheckedChange = {
+                            sceneArt = it
+                            repo.setSceneArtEnabled(it)
+                        },
+                    )
                 }
             }
 

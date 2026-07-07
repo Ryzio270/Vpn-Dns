@@ -279,6 +279,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
             choices = choices,
             xpGained = xpGained,
             events = events,
+            imagePrompt = ai.scene_image_prompt.trim().ifBlank { null },
         )
 
         return save.copy(
