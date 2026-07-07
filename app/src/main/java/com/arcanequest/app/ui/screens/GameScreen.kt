@@ -418,8 +418,11 @@ private fun DiceRollChip(roll: DiceRoll) {
 
 @Composable
 private fun ChoiceBlock(choices: List<String>, onAct: (String) -> Unit) {
+    val visibleState = remember {
+        androidx.compose.animation.core.MutableTransitionState(false).apply { targetState = true }
+    }
     AnimatedVisibility(
-        visible = true,
+        visibleState = visibleState,
         enter = fadeIn(tween(500)) + slideInVertically(tween(500)) { it / 3 },
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
