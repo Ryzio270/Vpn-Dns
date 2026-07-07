@@ -35,11 +35,12 @@ class SettingsRepository(context: Context) {
                 note = "Very cheap. Get a key at platform.deepseek.com.",
             ),
             AiPreset(
-                label = "OpenRouter (free models)",
+                label = "OpenRouter — Nemotron 3 Ultra (most powerful free)",
                 endpoint = "https://openrouter.ai/api/v1/chat/completions",
-                model = "deepseek/deepseek-chat-v3-0324:free",
+                model = "nvidia/nemotron-3-ultra-550b-a55b:free",
                 needsKey = true,
-                note = "Free tier models. Get a key at openrouter.ai.",
+                note = "Strongest free model (550B MoE). Needs a free API key from openrouter.ai. " +
+                    "If it's rate-limited, try openai/gpt-oss-120b:free in the model field.",
             ),
             AiPreset(
                 label = "Groq (free tier)",

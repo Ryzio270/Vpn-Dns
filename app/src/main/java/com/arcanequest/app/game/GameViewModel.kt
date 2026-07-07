@@ -183,13 +183,30 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
             val idx = journal.indexOfFirst { it.title.equals(upd.title, ignoreCase = true) }
             if (idx >= 0) {
                 val old = journal[idx]
+                if (old.entry == upd.entry) return@forEach
+                // The model is told to rewrite the complete article, so replace the
+                // text — but if it sent something suspiciously short compared to what
+                // we already know, append instead so lore is never lost.
                 val merged =
-                    if (old.entry.contains(upd.entry)) old.entry
+                    if (upd.entry.length * 2 >= old.entry.length) upd.entry
                     else old.entry + "\n\n" + upd.entry
-                journal[idx] = old.copy(entry = merged, updatedTurn = turnIndex, category = category)
+                journal[idx] = old.copy(
+                    entry = merged,
+                    category = category,
+                    updatedTurn = turnIndex,
+                    revisions = old.revisions + 1,
+                )
                 events.add("Journal updated: ${upd.title}")
             } else {
-                journal.add(JournalEntry(category, upd.title.trim(), upd.entry, turnIndex))
+                journal.add(
+                    JournalEntry(
+                        category = category,
+                        title = upd.title.trim(),
+                        entry = upd.entry,
+                        updatedTurn = turnIndex,
+                        createdTurn = turnIndex,
+                    )
+                )
                 events.add("New journal entry: ${upd.title}")
             }
         }

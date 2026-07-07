@@ -31,7 +31,7 @@ Rules for the JSON fields:
 - "choices": EXACTLY 3 distinct, concrete actions the player could take next, each under 12 words. Make them meaningfully different (bold / clever / cautious).
 - "inventory_add": loot, purchases and rewards. INVENT the item stats yourself to fit the story and world; weapons get a "damage" dice expression, armor gets "armor_bonus" 1-8. Rarity is one of: common, uncommon, rare, epic, legendary. Empty list most turns — loot should feel earned.
 - "inventory_remove": exact names of items consumed, sold, broken or lost.
-- "journal_updates": whenever a NEW important character, faction, region, nation, city, or piece of lore is introduced, or an existing one changes meaningfully, write an encyclopedia-style entry (2-4 sentences). "category" is one of: character, faction, region, nation, city, lore. Reuse the exact same title to update an existing entry.
+- "journal_updates": MANDATORY BOOKKEEPING — do this every turn. Before finalizing your reply, re-read your narration and list every proper noun in it: each named person, city, town, village, nation, kingdom, empire, region, faction, guild, order, religion, landmark, tavern, ship, artifact and historical event. Each of them MUST appear in "journal_updates" this turn if it (a) has no journal entry yet, or (b) was involved this turn in a way that revealed something new about it. Leaving a named city, NPC or faction without an entry is an error. For a NEW subject, write a 2-4 sentence encyclopedia-style entry covering what the player currently knows. For an EXISTING subject (the system prompt lists current entries with their text), set "title" to the EXACT existing title and REWRITE the whole entry from scratch as one complete, updated article: merge everything previously known with what was just learned, resolve contradictions in favor of the new information, and let entries grow richer and longer as the campaign progresses. "category" is one of: character, faction, region, nation, city, lore (use lore for landmarks, artifacts, events, religions and history).
 - "xp_gained": 0 most turns; 10-40 for overcoming obstacles, clever play or good roleplay; 50-100 for major victories or quest milestones.
 - "new_perks": rarely, when the character earns a new ability through story events or leveling up. Invent flavorful, mechanically-light perks.
 - "stat_changes": hp_change negative for damage, positive for healing; gold_change for money gained/spent.
@@ -55,8 +55,22 @@ Rules for the JSON fields:
                 }
             }
 
-        val journalLine = if (save.journal.isEmpty()) "(none yet)" else
-            save.journal.joinToString("; ") { "${it.title} (${it.category})" }
+        // Recent entries get their full text (so the model can rewrite/extend them);
+        // older ones are listed by title so it still knows they exist.
+        val journalBlock: String = if (save.journal.isEmpty()) "(none yet)" else buildString {
+            val recent = save.journal.sortedByDescending { it.updatedTurn }.take(20)
+            val recentTitles = recent.map { it.title }.toSet()
+            recent.forEach { e ->
+                append("\n- [${e.category}] ${e.title}: ")
+                append(e.entry.replace('\n', ' ').take(350))
+                if (e.entry.length > 350) append("…")
+            }
+            val older = save.journal.filter { it.title !in recentTitles }
+            if (older.isNotEmpty()) {
+                append("\n- Older entries (titles only): ")
+                append(older.joinToString("; ") { "${it.title} (${it.category})" })
+            }
+        }
 
         val perksLine = if (c.perks.isEmpty()) "(none)" else
             c.perks.joinToString("; ") { it.name }
@@ -81,7 +95,7 @@ PLAYER CHARACTER (current state — keep it consistent)
 - Perks: $perksLine
 - Inventory: $inventoryLine
 
-KNOWN JOURNAL ENTRIES (titles you may update): $journalLine
+CURRENT JOURNAL (when updating one of these, reuse its exact title and rewrite the full entry, merging old and new knowledge): $journalBlock
 
 Use the character's ability modifiers when setting dice roll modifiers. Track continuity with the journal. If HP would drop to 0, narrate a dramatic brush with death (unconsciousness, capture, rescue) rather than a hard game over, unless the player has been repeatedly reckless.
 
@@ -92,10 +106,13 @@ $SCHEMA
     fun opening(save: CampaignSave): String {
         return "Begin the campaign. Open with a strong hook that establishes where ${save.character.name} is, " +
             "what the world feels like, and an immediate situation demanding a decision. " +
-            "Introduce at least one journal-worthy character, faction or place. Remember: JSON only."
+            "Name the starting location and at least one character or faction, and write journal entries for " +
+            "every named person and place in your narration. Remember: JSON only."
     }
 
     fun action(playerAction: String): String {
-        return "My action: $playerAction\nContinue the story. Remember: JSON only, narration ends with an ellipsis, exactly 3 choices."
+        return "My action: $playerAction\nContinue the story. Remember: JSON only, narration ends with an ellipsis, " +
+            "exactly 3 choices, and journal_updates for every named person, place, faction or thing your narration " +
+            "mentions (new entry, or full rewrite of the existing entry if something new was learned)."
     }
 }

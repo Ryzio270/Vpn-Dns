@@ -800,6 +800,19 @@ private fun JournalTab(save: CampaignSave) {
                         }
                         Spacer(Modifier.height(6.dp))
                         Text(entry.entry, style = MaterialTheme.typography.bodyMedium)
+                        Spacer(Modifier.height(6.dp))
+                        val meta = buildString {
+                            append("Discovered scene ${entry.createdTurn}")
+                            if (entry.revisions > 1) {
+                                append("  ·  updated scene ${entry.updatedTurn}")
+                                append("  ·  ${entry.revisions} revisions")
+                            }
+                        }
+                        Text(
+                            meta,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        )
                     }
                 }
             }

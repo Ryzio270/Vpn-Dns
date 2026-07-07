@@ -48,6 +48,8 @@ data class JournalEntry(
     val title: String,
     val entry: String,
     val updatedTurn: Int = 0,
+    val createdTurn: Int = 0,
+    val revisions: Int = 1,
 )
 
 @Serializable
