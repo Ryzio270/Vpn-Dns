@@ -5,11 +5,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.arcanequest.app.R
 
 // Dark-fantasy palette
 val Parchment = Color(0xFFE8DCC0)
@@ -37,6 +40,34 @@ fun rarityColor(rarity: String): Color = when (rarity.lowercase()) {
     else -> RarityCommon
 }
 
+/**
+ * In-game accent color, set per campaign from its vibe. Screens outside a
+ * campaign (menu, setup, settings) keep the default gold.
+ */
+val LocalAccent = staticCompositionLocalOf { Gold }
+
+fun vibeAccent(vibe: String): Color {
+    val v = vibe.lowercase()
+    return when {
+        "grimdark" in v -> Color(0xFFC25B4E)      // ash red
+        "horror" in v -> Color(0xFFB84040)        // blood red
+        "mystery" in v -> Color(0xFFA98BD6)       // violet
+        "intrigue" in v -> Color(0xFFC3C9DB)      // court silver
+        "comedy" in v -> Color(0xFFF2A65A)        // warm orange
+        "exploration" in v -> Color(0xFF8FBF6F)   // trail green
+        "war" in v -> Color(0xFFD98E5F)           // burnished bronze
+        "slice of life" in v -> Color(0xFF8FCFC0) // soft teal
+        "heist" in v -> Color(0xFF5FC0AB)         // teal-gold
+        else -> Gold                               // heroic default
+    }
+}
+
+/** Display serif for titles and headers. */
+val Cinzel = FontFamily(Font(R.font.cinzel))
+
+/** Readable book serif for narration and body text. */
+val Alegreya = FontFamily(Font(R.font.alegreya))
+
 private val DarkScheme = darkColorScheme(
     primary = Gold,
     onPrimary = DeepInk,
@@ -56,39 +87,42 @@ private val DarkScheme = darkColorScheme(
 
 private val AppTypography = Typography(
     headlineLarge = TextStyle(
-        fontFamily = FontFamily.Serif,
+        fontFamily = Cinzel,
         fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
-        letterSpacing = 1.sp,
+        fontSize = 30.sp,
+        letterSpacing = 2.sp,
     ),
     headlineMedium = TextStyle(
-        fontFamily = FontFamily.Serif,
+        fontFamily = Cinzel,
         fontWeight = FontWeight.Bold,
-        fontSize = 24.sp,
+        fontSize = 23.sp,
+        letterSpacing = 1.sp,
     ),
     titleLarge = TextStyle(
-        fontFamily = FontFamily.Serif,
+        fontFamily = Cinzel,
         fontWeight = FontWeight.Bold,
-        fontSize = 20.sp,
+        fontSize = 19.sp,
     ),
     titleMedium = TextStyle(
-        fontFamily = FontFamily.Serif,
+        fontFamily = Cinzel,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 17.sp,
+        fontSize = 16.sp,
     ),
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Serif,
-        fontSize = 17.sp,
-        lineHeight = 26.sp,
+        fontFamily = Alegreya,
+        fontSize = 18.sp,
+        lineHeight = 27.sp,
     ),
     bodyMedium = TextStyle(
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
+        fontFamily = Alegreya,
+        fontSize = 15.sp,
+        lineHeight = 21.sp,
     ),
     labelLarge = TextStyle(
+        fontFamily = Cinzel,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 14.sp,
-        letterSpacing = 0.5.sp,
+        fontSize = 13.sp,
+        letterSpacing = 1.5.sp,
     ),
 )
 

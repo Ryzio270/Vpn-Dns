@@ -21,6 +21,9 @@ Respond ONLY with a single JSON object, no markdown fences, no text outside the 
   "journal_updates": [
     {"category": "character", "title": "Captain Mira Vale", "entry": "Commander of the harbor watch. Suspicious of outsiders but honorable."}
   ],
+  "quest_updates": [
+    {"title": "The Sunken Vault", "objective": "Recover the sealed coffer from beneath the old lighthouse", "status": "active", "progress_note": "Learned the vault entrance floods at high tide"}
+  ],
   "xp_gained": 25,
   "new_perks": [{"name": "Shadowstep", "description": "Once per encounter, slip 10 ft through shadow unseen."}],
   "stat_changes": {"hp_change": 0, "gold_change": 0}
@@ -34,6 +37,7 @@ Rules for the JSON fields:
 - "inventory_add": loot, purchases and rewards. INVENT the item stats yourself to fit the story and world; weapons get a "damage" dice expression, armor gets "armor_bonus" 1-8. Rarity is one of: common, uncommon, rare, epic, legendary. Empty list most turns — loot should feel earned.
 - "inventory_remove": exact names of items consumed, sold, broken or lost.
 - "journal_updates": MANDATORY BOOKKEEPING — do this every turn. Before finalizing your reply, re-read your narration and list every proper noun in it: each named person, city, town, village, nation, kingdom, empire, region, faction, guild, order, religion, landmark, tavern, ship, artifact and historical event. Each of them MUST appear in "journal_updates" this turn if it (a) has no journal entry yet, or (b) was involved this turn in a way that revealed something new about it. Leaving a named city, NPC or faction without an entry is an error. For a NEW subject, write a 2-4 sentence encyclopedia-style entry covering what the player currently knows. For an EXISTING subject (the system prompt lists current entries with their text), set "title" to the EXACT existing title and REWRITE the whole entry from scratch as one complete, updated article: merge everything previously known with what was just learned, resolve contradictions in favor of the new information, and let entries grow richer and longer as the campaign progresses. "category" is one of: character, faction, region, nation, city, lore (use lore for landmarks, artifacts, events, religions and history).
+- "quest_updates": maintain the quest log. When the player accepts a task, or a clear goal emerges from the story, ADD a quest with a short evocative title and a one-line objective. When an active quest advances, send it again with a brief "progress_note" of what changed. When it resolves, set "status" to "completed" or "failed". Reuse exact titles (active quests are listed in the system prompt). Keep 1-4 active quests; empty list on turns where nothing quest-related happened.
 - "xp_gained": 0 most turns; 10-40 for overcoming obstacles, clever play or good roleplay; 50-100 for major victories or quest milestones.
 - "new_perks": rarely, when the character earns a new ability through story events or leveling up. Invent flavorful, mechanically-light perks.
 - "stat_changes": hp_change negative for damage, positive for healing; gold_change for money gained/spent.
@@ -77,6 +81,18 @@ Rules for the JSON fields:
         val perksLine = if (c.perks.isEmpty()) "(none)" else
             c.perks.joinToString("; ") { it.name }
 
+        val questsBlock: String = if (save.quests.isEmpty()) "(none yet)" else buildString {
+            save.quests.filter { it.status == "active" }.forEach { q ->
+                append("\n- ACTIVE: ${q.title} — ${q.objective}")
+                q.log.lastOrNull()?.let { append(" (latest: $it)") }
+            }
+            val resolved = save.quests.filter { it.status != "active" }
+            if (resolved.isNotEmpty()) {
+                append("\n- Resolved: ")
+                append(resolved.joinToString("; ") { "${it.title} (${it.status})" })
+            }
+        }
+
         return """
 You are the Dungeon Master of an endless tabletop RPG campaign. You narrate an immersive, reactive world, control every NPC, enforce consequences, and keep the story moving with tension and wonder. Never break character, never mention being an AI, never refuse the fiction. Keep content within a PG-13 adventure tone.
 
@@ -96,6 +112,8 @@ PLAYER CHARACTER (current state — keep it consistent)
 - STR ${a.strength} (${AbilityScores.modifierText(a.strength)}), DEX ${a.dexterity} (${AbilityScores.modifierText(a.dexterity)}), CON ${a.constitution} (${AbilityScores.modifierText(a.constitution)}), INT ${a.intelligence} (${AbilityScores.modifierText(a.intelligence)}), WIS ${a.wisdom} (${AbilityScores.modifierText(a.wisdom)}), CHA ${a.charisma} (${AbilityScores.modifierText(a.charisma)})
 - Perks: $perksLine
 - Inventory: $inventoryLine
+
+QUEST LOG (reuse exact titles when updating): $questsBlock
 
 CURRENT JOURNAL (when updating one of these, reuse its exact title and rewrite the full entry, merging old and new knowledge): $journalBlock
 

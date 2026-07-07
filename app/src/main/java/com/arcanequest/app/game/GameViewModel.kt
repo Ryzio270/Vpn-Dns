@@ -17,6 +17,7 @@ import com.arcanequest.app.model.DiceRoll
 import com.arcanequest.app.model.Item
 import com.arcanequest.app.model.JournalEntry
 import com.arcanequest.app.model.Perk
+import com.arcanequest.app.model.Quest
 import com.arcanequest.app.model.StoryTurn
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -211,6 +212,49 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
 
+        // --- Quests ---
+        val quests = save.quests.toMutableList()
+        ai.quest_updates.forEach { upd ->
+            if (upd.title.isBlank()) return@forEach
+            val status = when (upd.status.trim().lowercase()) {
+                "completed", "complete", "done", "success" -> "completed"
+                "failed", "abandoned", "botched" -> "failed"
+                else -> "active"
+            }
+            val note = upd.progress_note.trim()
+            val idx = quests.indexOfFirst { it.title.equals(upd.title.trim(), ignoreCase = true) }
+            if (idx >= 0) {
+                val old = quests[idx]
+                if (old.status != status) {
+                    events.add(
+                        when (status) {
+                            "completed" -> "Quest completed: ${old.title}"
+                            "failed" -> "Quest failed: ${old.title}"
+                            else -> "Quest reopened: ${old.title}"
+                        }
+                    )
+                }
+                quests[idx] = old.copy(
+                    objective = upd.objective.trim().ifBlank { old.objective },
+                    status = status,
+                    log = if (note.isNotBlank() && note !in old.log) old.log + note else old.log,
+                    updatedTurn = turnIndex,
+                )
+            } else {
+                quests.add(
+                    Quest(
+                        title = upd.title.trim(),
+                        objective = upd.objective.trim(),
+                        status = status,
+                        log = if (note.isNotBlank()) listOf(note) else emptyList(),
+                        createdTurn = turnIndex,
+                        updatedTurn = turnIndex,
+                    )
+                )
+                events.add("New quest: ${upd.title.trim()}")
+            }
+        }
+
         // --- Character: XP, levels, perks, HP, gold ---
         var character = save.character
         val xpGained = ai.xp_gained.coerceIn(0, 500)
@@ -286,6 +330,7 @@ class GameViewModel(app: Application) : AndroidViewModel(app) {
             character = character,
             inventory = inventory,
             journal = journal,
+            quests = quests,
             turns = save.turns + turn,
             lastPlayedEpochMs = System.currentTimeMillis(),
             nextItemId = nextItemId,

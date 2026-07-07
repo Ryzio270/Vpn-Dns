@@ -47,6 +47,14 @@ data class AiStatChanges(
 )
 
 @Serializable
+data class AiQuestUpdate(
+    val title: String = "",
+    val objective: String = "",
+    val status: String = "active",
+    val progress_note: String = "",
+)
+
+@Serializable
 data class AiTurn(
     val narration: String = "",
     val scene_image_prompt: String = "",
@@ -55,6 +63,7 @@ data class AiTurn(
     val inventory_add: List<AiItem> = emptyList(),
     val inventory_remove: List<String> = emptyList(),
     val journal_updates: List<AiJournalUpdate> = emptyList(),
+    val quest_updates: List<AiQuestUpdate> = emptyList(),
     val xp_gained: Int = 0,
     val new_perks: List<AiPerk> = emptyList(),
     val stat_changes: AiStatChanges = AiStatChanges(),

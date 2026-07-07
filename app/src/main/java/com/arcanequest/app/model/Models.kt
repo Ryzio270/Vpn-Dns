@@ -104,12 +104,24 @@ data class CharacterSheet(
 }
 
 @Serializable
+data class Quest(
+    val title: String,
+    val objective: String = "",
+    /** active | completed | failed */
+    val status: String = "active",
+    val log: List<String> = emptyList(),
+    val createdTurn: Int = 0,
+    val updatedTurn: Int = 0,
+)
+
+@Serializable
 data class CampaignSave(
     val slot: Int,
     val setup: CampaignSetup = CampaignSetup(),
     val character: CharacterSheet = CharacterSheet(),
     val inventory: List<Item> = emptyList(),
     val journal: List<JournalEntry> = emptyList(),
+    val quests: List<Quest> = emptyList(),
     val turns: List<StoryTurn> = emptyList(),
     val lastPlayedEpochMs: Long = 0L,
     val nextItemId: Long = 1L,
