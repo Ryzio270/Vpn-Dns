@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 260 15% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 260 15% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 260 15% 8%;
+    --primary: 32 90% 48%;
+    --primary-foreground: 30 40% 98%;
+    --secondary: 260 12% 94%;
+    --secondary-foreground: 260 15% 12%;
+    --muted: 260 12% 94%;
+    --muted-foreground: 260 8% 42%;
+    --accent: 268 60% 55%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 48%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 260 12% 88%;
+    --input: 260 12% 88%;
+    --ring: 32 90% 48%;
+    --radius: 0.75rem;
+  }
+
+  /* Dark is the default shipped theme (see Section 7 of the spec). */
+  .dark {
+    --background: 264 30% 5%;
+    --foreground: 40 25% 92%;
+    --card: 264 24% 8%;
+    --card-foreground: 40 25% 92%;
+    --popover: 264 26% 7%;
+    --popover-foreground: 40 25% 92%;
+    --primary: 33 92% 55%;
+    --primary-foreground: 264 40% 6%;
+    --secondary: 264 18% 15%;
+    --secondary-foreground: 40 25% 92%;
+    --muted: 264 18% 14%;
+    --muted-foreground: 264 10% 62%;
+    --accent: 268 62% 62%;
+    --accent-foreground: 264 40% 6%;
+    --destructive: 0 68% 52%;
+    --destructive-foreground: 40 25% 96%;
+    --border: 264 16% 18%;
+    --input: 264 16% 18%;
+    --ring: 33 92% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    /* Respect Android notch / gesture bar. */
+    padding-top: env(safe-area-inset-top);
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Native-feeling: no text selection on chrome, but keep it in story prose. */
+  button,
+  [role='tab'],
+  nav {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+}
+
+@layer utilities {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+}
