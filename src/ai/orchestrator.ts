@@ -75,6 +75,7 @@ async function runBackgroundAgents(
         credentials,
         playerInput,
         storyResponse,
+        { onFallback: (info) => events.onFallback?.('bookkeeper', info) },
       )
       const messages = await applyStateUpdates(campaignId, updates, turnIndex)
       for (const message of messages) events.onStateChange?.(message)
