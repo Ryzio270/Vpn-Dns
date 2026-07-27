@@ -98,6 +98,7 @@ export async function exportCampaignToFile(campaignId: number): Promise<ExportRe
   const fileName = exportFileName(payload.campaign.name)
 
   if (Capacitor.isNativePlatform()) {
+    await ensureFilesystemPermission()
     const result = await Filesystem.writeFile({
       path: fileName,
       data: json,
@@ -116,6 +117,25 @@ export async function exportCampaignToFile(campaignId: number): Promise<ExportRe
   anchor.click()
   URL.revokeObjectURL(url)
   return { fileName, location: null }
+}
+
+/**
+ * Writing to shared Documents needs the storage permission on Android 10 and
+ * below; from API 30 scoped storage covers it and the check is a no-op.
+ */
+async function ensureFilesystemPermission(): Promise<void> {
+  try {
+    const status = await Filesystem.checkPermissions()
+    if (status.publicStorage === 'granted') return
+    const requested = await Filesystem.requestPermissions()
+    if (requested.publicStorage !== 'granted') {
+      throw new Error('Storage permission is required to write the save file.')
+    }
+  } catch (error) {
+    // On API 30+ the plugin may not implement the check at all — that is fine,
+    // the write itself will succeed. Only a real denial should stop the export.
+    if (error instanceof Error && error.message.includes('Storage permission')) throw error
+  }
 }
 
 function isCampaignExport(value: unknown): value is CampaignExport {
