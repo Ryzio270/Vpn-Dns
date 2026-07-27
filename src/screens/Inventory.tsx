@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 
 import { EmptyState } from '@/components/app/EmptyState'
 import { ItemCard, itemIcon, rarityClass } from '@/components/app/ItemCard'
+import { ListSkeleton } from '@/components/app/ListSkeleton'
 import { ScreenHeader } from '@/components/app/ScreenHeader'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -70,7 +71,9 @@ export function Inventory() {
       />
 
       <div className="flex-1 overflow-y-auto p-4">
-        {items === undefined ? null : items.length === 0 ? (
+        {items === undefined ? (
+          <ListSkeleton />
+        ) : items.length === 0 ? (
           <EmptyState
             Icon={Backpack}
             title="Nothing in your pack"

@@ -10,4 +10,17 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Split the heavy, rarely-changing libraries out of the app chunk so a
+        // code change does not force the WebView to re-parse all of them.
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          motion: ['framer-motion'],
+          db: ['dexie', 'dexie-react-hooks'],
+        },
+      },
+    },
+  },
 })

@@ -141,6 +141,19 @@ export function selectCredentials(state: Settings): ProviderCredentials {
   }
 }
 
+/**
+ * True when at least one target in the agent's chain could actually be reached:
+ * Pollinations works anonymously, OpenRouter always needs a key.
+ */
+export function agentIsReachable(settings: Settings, agent: AgentId): boolean {
+  const config = settings.agents[agent]
+  return [config.primary, ...config.fallbacks].some(
+    (target) =>
+      target.model.trim().length > 0 &&
+      (target.provider === 'pollinations' || settings.openRouterKey.trim().length > 0),
+  )
+}
+
 export const AGENT_LABELS: Record<AgentId, { title: string; blurb: string }> = {
   story: {
     title: 'Story',

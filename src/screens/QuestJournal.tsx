@@ -3,6 +3,7 @@ import { ScrollText } from 'lucide-react'
 import { toast } from 'sonner'
 
 import { EmptyState } from '@/components/app/EmptyState'
+import { ListSkeleton } from '@/components/app/ListSkeleton'
 import { QuestCard } from '@/components/app/QuestCard'
 import { ScreenHeader } from '@/components/app/ScreenHeader'
 import { Badge } from '@/components/ui/badge'
@@ -53,7 +54,9 @@ export function QuestJournal() {
         </div>
 
         <TabsContent value="active" className="mt-0 flex-1 overflow-y-auto p-4">
-          {quests === undefined ? null : active.length === 0 ? (
+          {quests === undefined ? (
+            <ListSkeleton rows={3} />
+          ) : active.length === 0 ? (
             <EmptyState
               Icon={ScrollText}
               title="No active quests"
@@ -69,7 +72,9 @@ export function QuestJournal() {
         </TabsContent>
 
         <TabsContent value="closed" className="mt-0 flex-1 overflow-y-auto p-4">
-          {quests === undefined ? null : closed.length === 0 ? (
+          {quests === undefined ? (
+            <ListSkeleton rows={2} />
+          ) : closed.length === 0 ? (
             <EmptyState
               Icon={ScrollText}
               title="Nothing finished yet"

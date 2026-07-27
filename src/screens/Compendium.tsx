@@ -3,6 +3,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { BookOpen, Search, X } from 'lucide-react'
 
 import { EmptyState } from '@/components/app/EmptyState'
+import { ListSkeleton } from '@/components/app/ListSkeleton'
 import { LORE_CATEGORIES, LoreCard, loreIcon } from '@/components/app/LoreCard'
 import { ScreenHeader } from '@/components/app/ScreenHeader'
 import { Badge } from '@/components/ui/badge'
@@ -110,7 +111,9 @@ export function Compendium() {
       )}
 
       <div className="flex-1 overflow-y-auto p-4">
-        {entries === undefined ? null : entries.length === 0 ? (
+        {entries === undefined ? (
+          <ListSkeleton />
+        ) : entries.length === 0 ? (
           <EmptyState
             Icon={BookOpen}
             title="Your compendium is empty"

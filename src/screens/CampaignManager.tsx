@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { CampaignCard } from '@/components/app/CampaignCard'
 import { EmptyState } from '@/components/app/EmptyState'
+import { ListSkeleton } from '@/components/app/ListSkeleton'
 import { ScreenHeader } from '@/components/app/ScreenHeader'
 import {
   AlertDialog,
@@ -170,7 +171,9 @@ export function CampaignManager() {
       />
 
       <div className="flex-1 overflow-y-auto px-4 pb-28 pt-4">
-        {isLoading ? null : campaigns.length === 0 ? (
+        {isLoading ? (
+          <ListSkeleton />
+        ) : campaigns.length === 0 ? (
           <EmptyState
             Icon={Compass}
             title="No campaigns yet"

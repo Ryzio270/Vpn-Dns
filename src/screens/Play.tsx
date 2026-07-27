@@ -5,6 +5,8 @@ import { AlertTriangle, Dices, Loader2, RotateCcw, Send, Swords } from 'lucide-r
 import { toast } from 'sonner'
 
 import { EmptyState } from '@/components/app/EmptyState'
+import { ProviderSetupNotice } from '@/components/app/ProviderSetupNotice'
+import { StorySkeleton } from '@/components/app/ListSkeleton'
 import { ScreenHeader } from '@/components/app/ScreenHeader'
 import { StoryBubble, TypingBubble } from '@/components/app/StoryBubble'
 import { Badge } from '@/components/ui/badge'
@@ -18,7 +20,7 @@ import {
 } from '@/components/ui/sheet'
 import { Textarea } from '@/components/ui/textarea'
 import { handlePlayerTurn } from '@/ai/orchestrator'
-import { AGENT_LABELS, useSettingsStore } from '@/store/settingsStore'
+import { AGENT_LABELS, agentIsReachable, useSettingsStore } from '@/store/settingsStore'
 import { useCampaignStore } from '@/store/campaignStore'
 import { getCampaign, getNarrativeState, listStoryLog } from '@/db/repository'
 import { QUICK_DICE, describeRoll, rollDice } from '@/lib/dice'
@@ -102,6 +104,7 @@ export function Play() {
   }
 
   const isEmpty = storyLog !== undefined && storyLog.length === 0 && !pendingPlayerMessage
+  const storyReachable = agentIsReachable(settings, 'story')
 
   return (
     <>
@@ -131,13 +134,21 @@ export function Play() {
       )}
 
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-        {isEmpty ? (
+        {!storyReachable && <ProviderSetupNotice />}
+
+        {storyLog === undefined ? (
+          <StorySkeleton />
+        ) : isEmpty ? (
           <EmptyState
             Icon={Swords}
             title="The story starts with you"
             description="Describe what your character does, or ask the DM to set the opening scene. Everything else — inventory, quests, lore — fills itself in as you play."
             action={
-              <Button variant="outline" onClick={() => void send('Set the opening scene.')}>
+              <Button
+                variant="outline"
+                disabled={!storyReachable}
+                onClick={() => void send('Set the opening scene.')}
+              >
                 Set the opening scene
               </Button>
             }
@@ -218,7 +229,7 @@ export function Play() {
             size="icon"
             aria-label="Send"
             className="shrink-0"
-            disabled={!input.trim() || isStoryGenerating}
+            disabled={!input.trim() || isStoryGenerating || !storyReachable}
             onClick={() => void send(input)}
           >
             {isStoryGenerating ? <Loader2 className="animate-spin" /> : <Send />}
