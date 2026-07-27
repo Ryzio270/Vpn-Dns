@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 
+import type { AgentId } from '@/ai/types'
+
 /**
  * Transient per-turn state. Anything durable lives in Dexie; this store only
  * holds what the UI needs between the player pressing Send and the DM's reply
@@ -14,13 +16,13 @@ interface CampaignState {
   /** The input that produced storyError, so it can be retried verbatim. */
   lastFailedInput: string | null
   /** Bookkeeper/Director still running after the prose has already rendered. */
-  backgroundAgents: string[]
+  backgroundAgents: AgentId[]
 
   beginTurn: (input: string) => void
   endTurn: () => void
   failTurn: (message: string, input: string) => void
   clearStoryError: () => void
-  setBackgroundAgent: (agent: string, running: boolean) => void
+  setBackgroundAgent: (agent: AgentId, running: boolean) => void
   reset: () => void
 }
 
@@ -29,7 +31,7 @@ export const useCampaignStore = create<CampaignState>((set) => ({
   isStoryGenerating: false,
   storyError: null,
   lastFailedInput: null,
-  backgroundAgents: [],
+  backgroundAgents: [] as AgentId[],
 
   beginTurn: (input) =>
     set({
