@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { Toaster } from '@/components/ui/sonner'
+import { useSettingsStore } from '@/store/settingsStore'
 import { CampaignLayout } from '@/screens/CampaignLayout'
 import { CampaignManager } from '@/screens/CampaignManager'
 import { CharacterSheet } from '@/screens/CharacterSheet'
@@ -15,6 +17,22 @@ import { Settings } from '@/screens/Settings'
  * native WebView with no server to rewrite deep links.
  */
 function App() {
+  const hydrate = useSettingsStore((state) => state.hydrate)
+  const hydrated = useSettingsStore((state) => state.hydrated)
+  const theme = useSettingsStore((state) => state.theme)
+
+  useEffect(() => {
+    void hydrate()
+  }, [hydrate])
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark')
+  }, [theme])
+
+  // Settings live behind an async read; rendering before it resolves would let
+  // a screen fire an agent call with empty credentials.
+  if (!hydrated) return <div className="h-full bg-background" />
+
   return (
     <HashRouter>
       <div className="relative h-full overflow-hidden bg-background">
