@@ -2,7 +2,7 @@ import { extractStateUpdates } from '@/ai/agents/bookkeeperAgent'
 import { updateStoryBible } from '@/ai/agents/directorAgent'
 import { generateStory } from '@/ai/agents/storyAgent'
 import type { AgentId, ProviderTarget } from '@/ai/types'
-import { appendStoryEntry, getNextTurnIndex } from '@/db/repository'
+import { appendStoryEntry } from '@/db/repository'
 import { buildContext } from '@/db/contextBuilder'
 import { applyStateUpdates } from '@/db/stateUpdates'
 import { selectCredentials, type Settings } from '@/store/settingsStore'
@@ -49,10 +49,10 @@ export async function handlePlayerTurn(
   )
 
   await appendStoryEntry(campaignId, 'player', playerInput)
-  await appendStoryEntry(campaignId, 'dm', story.content)
+  const dmEntry = await appendStoryEntry(campaignId, 'dm', story.content)
 
   // Fire-and-forget: the UI has the prose already and must not wait on these.
-  void runBackgroundAgents(campaignId, playerInput, story.content, settings, events)
+  void runBackgroundAgents(campaignId, playerInput, story.content, dmEntry.turnIndex, settings, events)
 
   return { storyResponse: story.content, target: story.target, usedFallback: story.usedFallback }
 }
@@ -61,11 +61,11 @@ async function runBackgroundAgents(
   campaignId: number,
   playerInput: string,
   storyResponse: string,
+  turnIndex: number,
   settings: Settings,
   events: TurnEvents,
 ): Promise<void> {
   const credentials = selectCredentials(settings)
-  const turnIndex = await getNextTurnIndex(campaignId)
 
   const bookkeeper = (async () => {
     events.onBackgroundAgent?.('bookkeeper', true)
@@ -100,6 +100,8 @@ async function runBackgroundAgents(
         campaignId,
         playerInput,
         storyResponse,
+        turnIndex,
+        { onFallback: (info) => events.onFallback?.('director', info) },
       )
     } catch (error) {
       events.onBackgroundError?.('director', error)
